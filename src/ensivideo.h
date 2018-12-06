@@ -8,6 +8,8 @@
 #include <vorbis/codec.h>
 #include "uthash.h"
 
+pthread_t videoStream_pid, audioStream_pid, sdlStream_pid;
+
 enum streamtype { TYPE_UNKNOW, TYPE_THEORA, TYPE_VORBIS };
 
 struct theora_decode {
