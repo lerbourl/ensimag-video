@@ -8,7 +8,6 @@
 
 bool fini = false;
 
-
 struct timespec datedebut;
 
 int msFromStart() {
@@ -66,20 +65,20 @@ struct streamstate *getStreamState(ogg_sync_state *pstate, ogg_page *ppage,
 	assert(res == 0);
 
 	// proteger l'accès à la hashmap
-
+    sem_wait(&smutex_hmap);
 	if (type == TYPE_THEORA)
 	    HASH_ADD_INT( theorastrstate, serial, s );
 	else
 	    HASH_ADD_INT( vorbisstrstate, serial, s );
-
+    sem_post(&smutex_hmap);
     } else {
 	// proteger l'accès à la hashmap
-
+    sem_wait(&smutex_hmap);
 	if (type == TYPE_THEORA)
 	    HASH_FIND_INT( theorastrstate, & serial, s );
 	else
 	    HASH_FIND_INT( vorbisstrstate, & serial, s );
-
+    sem_post(&smutex_hmap);
 	assert(s != NULL);
     }
     assert(s != NULL);
@@ -141,7 +140,9 @@ int decodeAllHeaders(int respac, struct streamstate *s, enum streamtype type) {
 
 	    if (type == TYPE_THEORA) {
             // lancement du thread gérant l'affichage (draw2SDL)
-            pthread_create(&sdlStream_pid, NULL, draw2SDL, (void*)&(s->serial));
+            // On utilise intptr_t pour avoir le droit de caster l'entier en void*
+            // (pusique c'est apparement ce qu'il faut faire, cf ligne 1 de draw2SDL)
+            pthread_create(&sdlStream_pid, NULL, draw2SDL, (void*)(intptr_t)s->serial);
             assert(res == 0);
 	    }
 	}

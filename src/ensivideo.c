@@ -6,8 +6,12 @@
 
 #include "stream_common.h"
 #include "oggstream.h"
+#include "synchro.h"
 
 int main(int argc, char *argv[]) {
+    //init synchro variables
+    sem_init(&smutex_hmap,  0, 1);
+
     int res;
 
     if (argc != 2) {
@@ -37,6 +41,8 @@ int main(int argc, char *argv[]) {
     // attendre les 2 threads videos
     pthread_join(videoStream_pid, NULL);
     pthread_join(sdlStream_pid, NULL);
+    // destroy mutexs
+    sem_destroy(&smutex_hmap);
 
     exit(EXIT_SUCCESS);
 }
