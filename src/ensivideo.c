@@ -8,9 +8,15 @@
 #include "oggstream.h"
 #include "synchro.h"
 
+/* Testé sur une vidéo ogg, ça marche ! */
 int main(int argc, char *argv[]) {
     //init synchro variables
-    sem_init(&smutex_hmap,  0, 1);
+    pthread_mutex_init(&mutex_hmap, NULL);
+    pthread_mutex_init(&mutex_textures, NULL);
+    sem_init(&sem_taille,  0, 0);
+    sem_init(&sem_fenetre_texture,  0, 0);
+    sem_init(&sem_free_cache,  0, NBTEX);
+    sem_init(&sem_cache,  0, 0);
 
     int res;
 
@@ -41,8 +47,12 @@ int main(int argc, char *argv[]) {
     // attendre les 2 threads videos
     pthread_join(videoStream_pid, NULL);
     pthread_join(sdlStream_pid, NULL);
-    // destroy mutexs
-    sem_destroy(&smutex_hmap);
-
+    // destroy mutexs et semaphores
+    sem_destroy(&sem_taille);
+    sem_destroy(&sem_fenetre_texture);
+    sem_destroy(&sem_free_cache);
+    sem_destroy(&sem_cache);
+    pthread_mutex_destroy(&mutex_hmap);
+    pthread_mutex_destroy(&mutex_textures);
     exit(EXIT_SUCCESS);
 }

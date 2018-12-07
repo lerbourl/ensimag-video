@@ -61,9 +61,9 @@ void *draw2SDL(void *arg) {
     signalerFenetreEtTexturePrete();
 
     /* Protéger l'accès à la hashmap */
-
+    pthread_mutex_lock(&mutex_hmap);
     HASH_FIND_INT( theorastrstate, &serial, s );
-
+    pthread_mutex_unlock(&mutex_hmap);
 
 
     assert(s->strtype == TYPE_THEORA);
@@ -78,7 +78,7 @@ void *draw2SDL(void *arg) {
 	    break;
 	  }
 	}
-
+    
 	debutConsommerTexture();
 
 	SDL_UpdateYUVTexture(texture, &rect,
